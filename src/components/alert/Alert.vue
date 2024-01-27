@@ -1,0 +1,61 @@
+<template>
+  <div class="alert" :class="'alert-'+type">
+    <div>
+      <div v-if="showTitle" class="alert-heading h4">{{ title }}</div>
+      <div :class="'alert-'+type">{{text}}</div>
+    </div>
+    <div class="href"><IconXmark @click="emit('close')" color="#494F54" :height="15"/></div>
+  </div>
+</template>
+
+<script setup>
+
+import {computed, onMounted} from "vue";
+import IconXmark from "../icons/IconXmark.vue";
+
+const props = defineProps({
+  type: {
+    type: String
+  },
+  text: {
+    type: String
+  },
+  showTitle: {
+    type: Boolean,
+    default: true
+  }
+})
+const emit = defineEmits(['close'])
+
+let closeTimeOut = 3 * 1000
+if (props.type === 'warning'){
+  closeTimeOut = 5 * 1000
+}
+if (props.type === 'error'){
+  closeTimeOut = 10 * 1000
+}
+
+const title = computed(() => {
+  switch (props.type){
+    case 'error':
+      return 'Ошибка'
+    case 'warning':
+      return 'Предупреждение'
+    default:
+      return 'Сообщение'
+  }
+})
+
+onMounted(() => setTimeout(() => emit('close'), closeTimeOut))
+
+</script>
+
+<style lang="scss">
+.alert {
+  display: flex;
+  justify-content: space-between;
+  .alert-heading{
+    margin-bottom: 10px;
+  }
+}
+</style>
