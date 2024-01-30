@@ -25,6 +25,7 @@ const route = useRoute()
 </template>
 
 <style scoped lang="scss">
+@import "./../scss/variables.scss";
 .layout-header{
 
   padding: 5px;
@@ -32,8 +33,8 @@ const route = useRoute()
   justify-content: space-between;
   align-items: center;
   color: #ffffff;
-  background:  #237a97;
-
+  background:  $primary-color;
+  box-shadow: 0 1px 1px 1px darken($primary-color, 10%);
   svg{
     fill: #ffffff;
   }

@@ -1,9 +1,10 @@
 import {defineStore} from 'pinia';
+import {api} from "../helper.js";
 
 
 
 export const useSystemStore = defineStore('system', {
-    state: () => Object.assign({messages: [], isAuthenticated: true}),
+    state: () => Object.assign({messages: [], user: null}),
     actions: {
         addMessage (text, type = 'info') {
             this.$state.messages.push(
@@ -39,17 +40,27 @@ export const useSystemStore = defineStore('system', {
                 }
             }
             this.addError(message)
-            return reason.response
+            return reason
         },
         systemMessages (response) {
-            if (response.data.messages){
+            if (response.data && response.data.messages){
                 for (const type in response.data.messages){
                     for (const text of response.data.messages[type]){
                         this.addMessage(text, type)
                     }
                 }
             }
-            return response.data.data
+            return response.data
+        },
+        loadUser(){
+            return api().get('/user/current').then((username) => {
+                if (username){
+                    this.$state.user = {username: username}
+                }
+
+                /*                this.$state.csrfParam = response.data.csrfParam
+                                this.$state.csrfToken = response.data.csrfToken*/
+            })
         },
     },
     getters: {    }

@@ -1,120 +1,102 @@
 <script setup>
-
-import BtnStd from "../components/ui/BtnStd.vue";
 import {ref} from "vue";
-import IconFileImage from "../components/icons/IconFileImage.vue";
+import {api} from "../helper.js";
 import IconCheck from "../components/icons/IconCheck.vue";
-const scanMode = ref(false)
+import router from "../router/index.js";
+
+const list = ref([])
+
+
+api().post('/warehouse/order/list', {}).then(response => list.value = response)
+
 </script>
 
 <template>
-  <div class="order-collect">
-    <div class="collect-top">
-      <div class="summary">Всего товаров в заказе: <strong>3</strong>    </div>
-      <BtnStd @click="scanMode = !scanMode">{{scanMode?'Завершить сканирование':'Сканировать ШК'}}</BtnStd>
-    </div>
-
-
-    <div class="items">
-      <div class="item">
-        <div class="title">
-          Глобус Земли Classic физико-политический с подсветкой рельефный, d=32 см Ке013200233
-          <div class="image"></div>
-        </div>
+  <div class="order-collect-view">
+    <div class="order-list">
+      <div class="item flex" v-for="item in list">
         <div class="info">
-          <div class="block"><label>Код</label><div class="value">71223</div> </div>
-          <div class="block"><label>Место</label><div class="value">44A</div> </div>
-          <div class="block"><label>Кол-во</label><div class="value">1</div> </div>
-          <div class="block image"><BtnStd class=""><IconFileImage :height="16" /></BtnStd> </div>
+          <div class="flex">
+            <div class="order-number link" @click="router.push(`/order-collect/${item.order_id_eas}`)">{{item.order_id_eas}}</div>
+            <div class="numbers">
+              <div>
+                <div class="title">№ документа</div>
+                <div>{{item.order_id_eas}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="user ">
+            <div class="title">Собирает:</div>
+            <div class="value">{{item.wh_username}}</div>
+          </div>
+          <div class="user ">
+            <div class="title">Собрал:</div>
+            <div class="value">{{item.wh_username}}</div>
+          </div>
         </div>
+        <div class="status">
+          <div class="icon">
+            <IconCheck/>
+          </div>
 
+        </div>
 
       </div>
-      <div class="item">
-        <div class="title">
-          Атлас для детей "Мир вокруг тебя"
-          <div class="image"></div>
-        </div>
-        <div class="info">
-          <div class="block"><label>Код</label><div class="value">118434</div> </div>
-          <div class="block"><label>Место</label><div class="value">43A</div> </div>
-          <div class="block"><label>Кол-во</label><div class="value">2</div> </div>
-          <div class="block image"><BtnStd class=""><IconFileImage :height="16" /></BtnStd> </div>
-        </div>
-
-
-      </div>
-    </div>
-
-
-    <div class="actions">
-      <BtnStd class="" disabled><IconCheck color="#ffffff"/> Заказ собран</BtnStd>
     </div>
 
   </div>
+
 </template>
 
 <style scoped lang="scss">
-.order-collect{
-  $border-color: #cccccc;
-  .collect-top{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .summary{
-      strong{
-        color: #bd0000;
-      }
-    }
-  }
-  .items{
-    margin: 10px 0;
+@import './../scss/variables.scss';
+.order-collect-view{
+  .order-list{
     .item{
-      margin: 10px 0;
-      border: 1px solid $border-color;
-
-      &:not(:first-child){
-       /* border-top: 1px solid $border-color;*/
-      }
+      border-bottom: 1px solid #ccc;
+      display: flex;
       .info{
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-
-
-        .block{
-          &:not(:last-child){
-            border-right: 1px solid $border-color;
-          }
-          &.image{
-            display: flex;
-            justify-content: flex-end;
-          }
+        flex: 1 1 80%;
+        .order-number{
           flex: 1;
-          text-align: center;
-          border-collapse: collapse;
-          label{
-            font-size: 12px;
-            display: block;
-            margin-bottom: 5px;
-          }
-          .value{
-            font-weight: bold;
+          font-size: 20px;
+          font-weight: bold;
+        }
+        .numbers{
+          flex: 1;
+          .title{
+            color: lighten($color, 20%);
+            font-size: 90%;
           }
         }
       }
-      .title{
-        border-bottom: 1px solid $border-color;
+      .status{
+        width: 80px;
         display: flex;
-        padding: 7px 5px 5px 5px;
-        font-size: 12px;
+        flex-direction: column;
+        justify-content: space-between;
+        .icon{
+          text-align: center;
+          svg{
+            fill: $color-success;
+            height: 24px;
+          }
+        }
+      }
+
+      .user{
+        border-top: 1px solid #ccc;
+        padding: 2px;
+        align-items: center;
+        display: flex;
+        gap: 5px;
+        word-break: break-all;
+        .title{
+          color: lighten($color, 20%);
+          font-size: 90%;
+        }
       }
     }
-  }
-  .actions{
-    margin: 30px 0;
-    display: flex;
-    justify-content: center;
   }
 }
 </style>

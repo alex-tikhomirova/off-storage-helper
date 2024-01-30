@@ -12,16 +12,29 @@ const router = createRouter({
       children: [
         {
           path: '',
-          name: 'home',
           component: () => import('../views/HomeView.vue'),
           meta: {title: 'Главная'}
         },
         {
           path: '/order-collect',
-          name: 'order-collect',
-          component: () => import('../views/OrderCollectView.vue'),
+          children: [
+            {
+              path: '',
+              component: () => import('../views/OrderCollectView.vue'),
+              meta: {title: 'Заказы на сборку'},
+            },
+            {
+              path: ':id',
+              component: () => import('../views/OrderCollectDetailsView.vue'),
+              meta: {title: 'Сборка заказа'}
+            },
+          ]
+        },
+/*        {
+          path: '/order-collect/details',
+          component: () => import('../views/OrderCollectDetailsView.vue'),
           meta: {title: 'Сборка заказа'}
-        }
+        },*/
       ]
     },
     {
@@ -33,12 +46,23 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   const system = useSystemStore()
-  if (
+  if (!system.user){
+    await system.loadUser()
+  }
+  if (!system.user && to.name !== 'login'){
+    return { name: 'login' }
+  }
+  if (system.user && to.name === 'login'){
+    return ''
+  }
+
+
+/*  if (
       // make sure the user is authenticated
       !system.isAuthenticated &&
-      // ❗️ Avoid an infinite redirect
+      //  Avoid an infinite redirect
       to.name !== 'login'
   ) {
     // redirect the user to the login page
@@ -47,7 +71,7 @@ router.beforeEach(async (to, from) => {
     if (system.isAuthenticated && to.name === 'login'){
       router.replace('/')
     }
-  }
+  }*/
 })
 
 export default router

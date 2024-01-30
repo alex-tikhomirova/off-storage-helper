@@ -7,8 +7,11 @@
 </template>
 
 <style  lang="scss">
-$background: #237a97;
+
+
+@import './../../scss/variables.scss';
 $color: #ffffff;
+$background: $primary-color;
 button{
   background:  $background;
   color: $color;

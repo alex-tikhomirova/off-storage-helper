@@ -1,5 +1,8 @@
 <script setup>
 
+import {api} from "../helper.js";
+
+api().get('/warehouse/order/list')
 </script>
 
 <template>

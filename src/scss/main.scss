@@ -1,0 +1,39 @@
+@import "./variables.scss";
+
+body{
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 14px;
+  color: $color;
+}
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+a,a:visited,.link{
+  color: $primary-color;
+}
+
+.flex{
+  display: flex;
+}
+
+
+.form-group{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.input{
+  border: 1px solid #ccc;
+  transition: border linear 0.2s;
+  padding: 8px 12px;
+  border-radius: 3px;
+  display: block;
+  width: 100%;
+  &:focus{
+    border-color: $primary-color;
+    outline: 0;
+  }
+}
