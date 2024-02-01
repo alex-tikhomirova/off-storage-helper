@@ -1,6 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import {useSystemStore} from "../stores/system.js";
-
 
 
 const router = createRouter({
@@ -13,7 +12,6 @@ const router = createRouter({
         {
           path: '',
           component: () => import('../views/HomeView.vue'),
-          meta: {title: 'Главная'}
         },
         {
           path: '/order-collect',
@@ -21,12 +19,10 @@ const router = createRouter({
             {
               path: '',
               component: () => import('../views/OrderCollectView.vue'),
-              meta: {title: 'Заказы на сборку'},
             },
             {
               path: ':id',
               component: () => import('../views/OrderCollectDetailsView.vue'),
-              meta: {title: 'Сборка заказа'}
             },
           ]
         },
@@ -41,7 +37,6 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('../views/auth/LoginView.vue'),
-      meta: {title: 'Авторизация'}
     }
   ]
 })

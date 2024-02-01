@@ -1,32 +1,6 @@
 import axios from "axios";
 import {useSystemStore} from "./stores/system";
 
-const dateTimeSql = (str) => {
-    const date = str?new Date(str):new Date()
-    return dateSql(str) + ' ' + date.getHours() + ':' + String(date.getMinutes()).padStart(2, "0");
-}
-
-const dateSql = (str) => {
-    const date = str?new Date(str):new Date()
-    return [
-        date.getFullYear(),
-            String(date.getMonth()+1).padStart(2, "0"),
-            String(date.getDate()).padStart(2, "0")
-        ].join('-')
-}
-
-const dateLocal = (str) => {
-    const date = str?new Date(str):new Date()
-    const options = {day: 'numeric', month: 'long', year: 'numeric' };
-    return (new Intl.DateTimeFormat('ru-RU', options)).format(date)
-}
-
-const getParam =  (param, defval) => {
-    if (window.publicParams && window.publicParams[param]){
-        return window.publicParams[param];
-    }
-    return defval;
-};
 
 const scrollTo = (id) => {
     const el = document.getElementById(id)
@@ -63,4 +37,4 @@ const api = (catchErrors = true) => {
 }
 
 
-export {dateSql, dateTimeSql, dateLocal, getParam, api, scrollTo}
+export {api, scrollTo}

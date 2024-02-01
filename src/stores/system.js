@@ -4,7 +4,7 @@ import {api} from "../helper.js";
 
 
 export const useSystemStore = defineStore('system', {
-    state: () => Object.assign({messages: [], user: null}),
+    state: () => Object.assign({messages: [], user: null, title: null}),
     actions: {
         addMessage (text, type = 'info') {
             this.$state.messages.push(

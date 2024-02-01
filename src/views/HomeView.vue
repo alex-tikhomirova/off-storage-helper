@@ -1,8 +1,12 @@
 <script setup>
 
-import {api} from "../helper.js";
 
-api().get('/warehouse/order/list')
+import {useSystemStore} from "../stores/system.js";
+
+const system = useSystemStore()
+system.title = `Главная`
+
+
 </script>
 
 <template>

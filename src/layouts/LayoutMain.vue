@@ -1,23 +1,24 @@
 <script setup>
 import IconChevron from "../components/icons/IconChevron.vue";
 
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 import IconBars from "../components/icons/IconBars.vue";
+import BtnStd from "../components/ui/BtnStd.vue";
+import {useSystemStore} from "../stores/system.js";
 
 const router = useRouter()
-const route = useRoute()
+
+const system = useSystemStore()
 
 </script>
 
 <template>
   <div class="layout-header">
-
-      <div class="button" @click="router.back()"><IconChevron :rotate="90" :height="14"/></div>
-
+    <BtnStd @click="router.back()"><IconChevron :rotate="90" :height="14"/></BtnStd>
     <div class="page-title">
-      {{route.meta.title}}
+      {{system.title}}
     </div>
-    <div class="button"><IconBars :height="14"/></div>
+    <BtnStd><IconBars :height="14"/></BtnStd>
   </div>
   <div class="view-wrapper">
     <router-view/>
@@ -38,15 +39,7 @@ const route = useRoute()
   svg{
     fill: #ffffff;
   }
-  .button{
 
-    box-shadow: 0 0 2px  #000000;
-    padding: 5px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-  }
 }
 .view-wrapper{
   margin: 20px 10px;
