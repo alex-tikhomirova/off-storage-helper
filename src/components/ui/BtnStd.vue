@@ -30,6 +30,14 @@ button{
       fill: darken($color,10%);
     }
   }
+  &.active,:active{
+    background:  darken($background, 5%);
+    box-shadow: inset 2px 2px 3px #000000;
+    color: darken($color,10%);
+    svg{
+      fill: darken($background,20%);
+    }
+  }
   svg{
     fill: $color;
   }
