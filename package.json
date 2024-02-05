@@ -16,7 +16,8 @@
     "sass": "^1.69.7",
     "vue-router": "^4.2.5",
     "@vuepic/vue-datepicker": "^7.2.2",
-    "@zxing/library": "^0.20.0"
+    "@zxing/library": "^0.20.0",
+    "@fancyapps/ui": "^5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.2",

@@ -22,6 +22,13 @@ button{
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+  gap: 5px;
+  &.success{
+    background: $color-success;
+  }
+  &.warning{
+    background: $color-warning;
+  }
   &[disabled]{
     background:  lighten($background, 20%);
     box-shadow: none;
@@ -36,6 +43,7 @@ button{
     color: darken($color,10%);
     svg{
       fill: darken($background,20%);
+      height: 14px;
     }
   }
   svg{

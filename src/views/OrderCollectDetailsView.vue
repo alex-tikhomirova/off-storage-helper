@@ -13,6 +13,8 @@ import IconBarcode from "../components/icons/IconBarcode.vue";
 import scan_ok from './../assets/scan_ok.mp3'
 import scan_not_ok from './../assets/scan_not_ok.mp3'
 import BarcodeScanner from "../components/util/BarcodeScanner.vue";
+import ProductImagesSlider from "../components/ProductImagesSlider.vue";
+import {dateRu} from "../helpers/datetime.js";
 
 const system = useSystemStore()
 const route = useRoute()
@@ -39,8 +41,9 @@ const remainTotal = computed(() => {
 })
 
 
-const loadOrder = () => api().post(`/warehouse/order/item?expand=items,marketplace`, {order_id_eas: route.params.id}).then(data => order.value = data)
+const loadOrder = () => api().post(`/warehouse/order/item?expand=items.dimensions,items.images,marketplace`, {order_id_eas: route.params.id}).then(data => order.value = data)
 watch(() => order.value, (value) => {
+  console.log('change')
   canEdit.value = system.user.username === order.value.wh_username
   finished.value = true
   for (let item of value.items) {
@@ -58,22 +61,40 @@ watch(() => order.value, (value) => {
 
 
 const setAttribute = (attribute, value) => {
-  api().post(`/warehouse/order/set-attribute`, {order_id_eas: order.value.order_id_eas, attribute: attribute, value: value}).then(loadOrder)
+  return api().post(`/warehouse/order/set-attribute`, {order_id_eas: order.value.order_id_eas, attribute: attribute, value: value}).then((data) => {
+    Object.assign(order.value, data)
+  })
 }
 
-const collect = () => setAttribute('status', 1)
+const collect = () => setAttribute('status_id', 1).then(scanAll)
+const pack = () => setAttribute('status_id', 2)
 const unCollect = () => {
   if (confirm('Уверены???')){
-    setAttribute('status', 0)
+    setAttribute('status_id', 0)
+  }
+}
+const unPack = () => {
+  if (confirm('Уверены???')){
+    setAttribute('status_id', 1)
   }
 }
 
-const setScan = () => api().post(`/warehouse/order/set-scan`, {order_id_eas: order.value.order_id_eas, barcodes: barcodes}).then(loadOrder)
+const setScan = () => api().post(`/warehouse/order/set-scan`, {order_id_eas: order.value.order_id_eas, barcodes: barcodes}).then((items) => {
+  for (let orderItem of order.value.items) {
+   for (let item of items) {
+     if (orderItem.product_id === item.product_id){
+       Object.assign(orderItem, item)
+     }
+   }
+
+
+  }
+})
 
 let scanTimeout = null
 
 const scan = (barcode) => {
-  if (!order.value.status) {
+  if (!order.value.status_id) {
     if (barcodes[barcode] && barcodes[barcode].scanned < barcodes[barcode].quantity) {
       soundOK.play()
       barcodes[barcode].scanned += 1
@@ -87,8 +108,9 @@ const scan = (barcode) => {
   }
 }
 
+
 const reset = (product_id) => {
-  if (!order.value.status && canEdit && confirm('Уверены???')){
+  if (!order.value.status_id && canEdit && confirm('Уверены???')){
     for (let item of Object.entries(barcodes)) {
       if (product_id === item[1].product_id){
         barcodes[item[0]].scanned = 0
@@ -97,6 +119,14 @@ const reset = (product_id) => {
     setScan()
   }
 }
+
+const scanAll = (product_id) => {
+    for (let item of Object.entries(barcodes)) {
+        barcodes[item[0]].scanned = barcodes[item[0]].quantity
+    }
+    setScan()
+}
+
 
 loadOrder()
 
@@ -120,7 +150,7 @@ loadOrder()
 
         </div>
         <div class="right">
-          <BtnStd v-if="canEdit && !order.status" @click="scanMode = !scanMode" :class="{active: scanMode}">
+          <BtnStd v-if="canEdit && !order.status_id" @click="scanMode = !scanMode" :class="{active: scanMode}">
             <IconBarcode :height="40"/>
           </BtnStd>
           <div class="summary">Осталось: <div class="count" :class="{success: !remainTotal}">{{ remainTotal }}</div>    </div>
@@ -137,19 +167,25 @@ loadOrder()
             <div class="flex-tbl code">
               <div class="vblock"><label>Код</label><div class="value">{{ item.product_id }}</div> </div>
               <div class="vblock"><label>Код поставщика</label><div class="value">{{ item.vendor_code }}</div> </div>
+              <div class="vblock"><label>код МП</label><div class="value">{{ item.marketplace_sku }}</div> </div>
             </div>
             <div class="flex-tbl place">
               <div class="vblock"><label>Место</label><div class="value">{{ item.store_place }}</div> </div>
+              <div class="vblock"><label>Остаток</label><div class="value">{{ item.current_stock }}</div> </div>
+              <div class="vblock" v-if="item.date_last_ship && item.date_last_ship !== '0000-00-00 00:00:00'"><label>Посл. пост</label><div class="value">{{ dateRu(item.date_last_ship) }}</div> </div>
             </div>
             <div class="flex-tbl counters" :class="{multi: item.quantity>1, success: barcodes[item.barcode].scanned === item.quantity}">
               <div class="vblock barcode"><label>Штрихкод</label><div class="value" @click="() => scan(item.barcode)">{{ item.barcode }}</div> </div>
               <div class="vblock qty"><label>Кол-во</label><div class="value">{{ item.quantity }}</div> </div>
-              <div class="vblock scan" @click="() => reset(item.product_id)"><label>Считано</label><div class="value" >{{ Number(item.scanned) }}</div> <div class="reset" v-if="!order.status"><IconXmark/></div></div>
+              <div class="vblock scan" @click="() => reset(item.product_id)"><label>Считано</label><div class="value" >{{ Number(item.scanned) }}</div> <div class="reset" v-if="!order.status_id"><IconXmark/></div></div>
             </div>
           </div>
           <div class="image">
-            <img src="https://www.globusoff.ru/images/product/mid/71223.jpg" alt="">
+            <ProductImagesSlider v-if="item.images" :images="item.images"/>
+            <img v-else src="/noimage.gif" alt="">
+
           </div>
+
         </div>
 
       </XPanel>
@@ -157,8 +193,11 @@ loadOrder()
 
 
     <div class="actions" v-if="canEdit">
-      <BtnStd @click="unCollect" v-if="order.status"><IconXmark color="#ffffff"/> Разобрать заказ</BtnStd>
-      <BtnStd @click="collect" :disabled="!finished" v-else><IconCheck color="#ffffff"/> Заказ собран</BtnStd>
+      <BtnStd @click="collect"  v-if="!order.status_id"><IconCheck color="#ffffff"/> Заказ собран</BtnStd>
+      <BtnStd  class="warning" @click="unCollect" v-if="order.status_id === 1"><IconXmark color="#ffffff"/> Разобрать заказ</BtnStd>
+      <BtnStd class="success" @click="pack" v-if="order.status_id === 1"><IconCheck color="#ffffff"/> Упаковать заказ</BtnStd>
+      <BtnStd class="warning" @click="unPack" v-if="order.status_id === 2"><IconXmark color="#ffffff"/> Распаковать заказ</BtnStd>
+
     </div>
 
   </div>
@@ -239,11 +278,11 @@ loadOrder()
           flex: 2;
           display: flex;
           flex-direction: column;
-          border-right: 1px solid $border-color;
+
         }
         .flex-tbl{
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
 
           &.counters{
             &.multi .qty .value{
@@ -278,12 +317,12 @@ loadOrder()
           }
 
 
-          &:not(:last-child) .vblock{
+          &:not(:last-child) {
             border-bottom: 1px solid $border-color;
           }
           .vblock{
             text-align: center;
-            flex: 1;
+
             padding: 10px 5px;
 
             &.barcode{
@@ -307,14 +346,43 @@ loadOrder()
           }
         }
         .image{
-          flex: 1;
+          width: 150px;
+          padding: 5px;
+        }
+/*        .image{
+
+          width: 160px;
           height: 160px;
           text-align: center;
-          img{
+          overflow: hidden;
+          >img{
             max-width: 100%;
             max-height: 100%;
           }
-        }
+          .image-slider{
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            .slide{
+              scroll-snap-align: start;
+              flex-shrink: 0;
+              width: 150px;
+              height: 160px;
+              margin-right: 50px;
+              transform-origin: center center;
+              transform: scale(1);
+              transition: transform 0.5s;
+              position: relative;
+
+              img{
+
+              }
+            }
+          }
+        }*/
       }
 
     }
@@ -322,7 +390,7 @@ loadOrder()
   .actions{
     margin: 30px 0;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
   }
 }
 </style>

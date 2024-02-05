@@ -15,7 +15,7 @@ const api = (catchErrors = true) => {
 
 
   //  const options = {headers: {'X-Csrf-Token': system.csrf, 'X-Requested-With': 'XMLHttpRequest'}, baseURL: 'http://offgroup.xyz/publicapi'}
-    const options = {baseURL: 'http://offgroup.xyz/publicapi', withCredentials: true, xsrfCookieName: '_csrf'}
+    const options = {baseURL: '/publicapi', withCredentials: true, xsrfCookieName: '_csrf'}
     const api = axios.create(options)
 
     const catcher = (e) => {

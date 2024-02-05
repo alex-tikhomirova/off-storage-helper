@@ -23,7 +23,7 @@ const pages = ref({
 })
 
 const filterData = {
-  status: '',
+  status_id: '',
   owner: ''
 }
 const loadOrders = (data) => {
@@ -48,7 +48,7 @@ const options = {
 
     <XPanel>
       <div class="filter">
-        <RadioButtons :options="options.status" option-label="value" v-model="worker.query.filter.status"/>
+        <RadioButtons :options="options.status" option-label="value" v-model="worker.query.filter.status_id"/>
         <RadioButtons :options="options.owner" option-label="value" v-model="worker.query.filter.owner"/>
       </div>
     </XPanel>
@@ -61,7 +61,7 @@ const options = {
         <div>Открыт/Закрыт</div>
         <div></div>
       </div>
-      <div class="item " v-for="item in list" :class="{collected: item.status}">
+      <div class="item " v-for="item in list" :class="{collected: item.status_id}">
         <div class="order-number link" @click="router.push(`/order-collect/${item.order_id_eas}`)">{{item.order_id_eas}}</div>
         <div class="numbers">
           <div>
@@ -76,7 +76,7 @@ const options = {
         </div>
         <div class="status">
           <div class="icon">
-            <IconCheck class="checked" v-if="item.status === 1"/>
+            <IconCheck class="checked" v-if="item.status_id === 1"/>
             <IconXmark v-else/>
           </div>
 
