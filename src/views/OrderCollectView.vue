@@ -4,13 +4,14 @@ import {api} from "../helper.js";
 import IconCheck from "../components/icons/IconCheck.vue";
 import router from "../router/index.js";
 import IconXmark from "../components/icons/IconXmark.vue";
-import {shortDateTime} from "../helpers/datetime.js";
+
 import {useSystemStore} from "../stores/system.js";
-import IconMinus from "../components/icons/IconMinus.vue";
+
 import RadioButtons from "../components/ui/RadioButtons.vue";
 import XPanel from "../components/ui/XPanel.vue";
 import PaginationComponent from "../components/ui/PaginationComponent.vue";
 import createFilter from "./../helpers/filter.js";
+import IconBox from "../components/icons/IconBox.vue";
 
 
 const system = useSystemStore()
@@ -23,11 +24,11 @@ const pages = ref({
 })
 
 const filterData = {
-  status_id: '',
-  owner: ''
+  status_id: '0',
+  my_own: '1'
 }
 const loadOrders = (data) => {
-  api().post('/warehouse/order/list', data).then(response => {
+  api().post('/warehouse/order/list?expand=marketplace', data).then(response => {
     list.value = response.items
     pages.value.page = response._meta.pageCount
     pages.value.total = response._meta.totalCount
@@ -38,8 +39,8 @@ const worker = createFilter(filterData, loadOrders)
 
 
 const options = {
-  owner: [{id: '', value: 'Мои'}, {id: '1', value: 'Все'}],
-  status: [{id: '1', value: 'Все'}, {id: '', value: 'Несобранные'}],
+  my_own: [{id: '1', value: 'Мои'}, {id: '0', value: 'Все'}],
+  status: [{id: '-1', value: 'Все'}, {id: '0', value: 'Несобранные'}/*, {id: '1', value: 'Неупакованные'}*/],
 }
 </script>
 
@@ -49,43 +50,44 @@ const options = {
     <XPanel>
       <div class="filter">
         <RadioButtons :options="options.status" option-label="value" v-model="worker.query.filter.status_id"/>
-        <RadioButtons :options="options.owner" option-label="value" v-model="worker.query.filter.owner"/>
+        <RadioButtons :options="options.my_own" option-label="value" v-model="worker.query.filter.my_own"/>
       </div>
     </XPanel>
 
     <XPanel>
-    <div class="order-list">
-      <div class="item header">
-        <div>№ заказа</div>
-        <div>№ документа</div>
-        <div>Открыт/Закрыт</div>
-        <div></div>
-      </div>
-      <div class="item " v-for="item in list" :class="{collected: item.status_id}">
-        <div class="order-number link" @click="router.push(`/order-collect/${item.order_id_eas}`)">{{item.order_id_eas}}</div>
-        <div class="numbers">
-          <div>
+      <table class="table order-list">
+        <thead>
+        <tr>
+          <th>№ заказа</th>
+          <th>№ док-та</th>
+          <th>МП</th>
+          <th>Собирает</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in list" :class="{collected: item.status_id}">
+          <td><div class="order-number link" @click="router.push(`/order-collect/${item.order_id_eas}`)">{{item.order_id_eas}}</div></td>
+          <td class="small"> <div>{{Number(item.doc_number_eas)}}</div></td>
+          <td>
+            <div class="small" v-if="item.marketplace">{{ item.marketplace.type }}</div>
+          </td>
+          <td>
+            <div class="small">{{ item.wh_username }}</div>
+          </td>
+          <td class="status">
+            <div class="icon">
+              <IconBox class="checked" v-if="item.status_id === 2"/>
+              <IconCheck class="checked" v-else-if="item.status_id === 1"/>
+              <IconXmark v-else/>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
 
-            <div>{{item.doc_number_eas}}</div>
-          </div>
-        </div>
-        <div class="dates">
-          <div>{{ shortDateTime(item.created_at) }}</div>
-          <div v-if="item.collected_at">{{ shortDateTime(item.collected_at) }}</div>
-          <div v-else><IconMinus/></div>
-        </div>
-        <div class="status">
-          <div class="icon">
-            <IconCheck class="checked" v-if="item.status_id === 1"/>
-            <IconXmark v-else/>
-          </div>
-
-        </div>
 
 
-
-      </div>
-    </div>
     </XPanel>
     <XPanel>
       <PaginationComponent v-model="worker.query.page" :pages="pages.page" :visible-links="5" :total="pages.total" :perpage="pages.perpage"/>
@@ -103,107 +105,36 @@ const options = {
 
   }
   .order-list{
-
-
-    .item{
-      &.header{
-        color: lighten($color, 10%);
-      }
-      &.collected{
+    thead{
+      color: lighten($color, 10%);
+      font-size: 80%;
+    }
+    tbody{
+      tr.collected td{
         background: $background-success;
       }
-      display: grid;
-      grid-template-columns: 4fr 2fr 2fr 30px;
-      border-bottom: 1px solid $border-color;
-      align-items: center;
-      >*{
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 4px 5px;
-        text-align: center;
+      td{
+        .order-number{
+          font-size: 120%;
+          font-weight: bold;
+        }
+        &.status{
+          .icon {
+            text-align: center;
 
-       &:not(:last-child){
-         border-right: 1px solid $border-color;
-       }
-      }
-      .order-number{
-        flex: 1;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: left;
-      }
+            svg {
+              fill: $color-error;
+              height: 20px;
 
-      .status{
-        .icon {
-          text-align: center;
-
-          svg {
-            fill: $color-error;
-            height: 20px;
-
-            &.checked {
-              fill: $color-success;
+              &.checked {
+                fill: $color-success;
+              }
             }
           }
         }
       }
     }
 
-
-
-
-
-/*
-    .item{
-      border-bottom: 1px solid #ccc;
-      display: flex;
-      .info{
-        flex: 1 1 80%;
-        .order-number{
-          flex: 1;
-          font-size: 20px;
-          font-weight: bold;
-        }
-        .numbers{
-          flex: 1;
-          .title{
-            color: lighten($color, 20%);
-            font-size: 90%;
-          }
-        }
-      }
-      .status{
-        width: 80px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        .icon{
-          text-align: center;
-          svg{
-            fill: $color-error;
-            height: 20px;
-            &.check{
-              fill: $color-success;
-            }
-          }
-        }
-      }
-
-      .user{
-        border-top: 1px solid #ccc;
-        padding: 2px;
-        align-items: center;
-        display: flex;
-        gap: 5px;
-        word-break: break-all;
-        .title{
-          color: lighten($color, 20%);
-          font-size: 90%;
-        }
-      }
-    }*/
   }
 }
 </style>

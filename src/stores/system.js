@@ -50,12 +50,15 @@ export const useSystemStore = defineStore('system', {
                     }
                 }
             }
-            return response.data
         },
         loadUser(){
-            return api().get('/user/current').then((username) => {
-                if (username){
-                    this.$state.user = {username: username}
+            return api().get('/user/current').then((user) => {
+                if (typeof user === "object" && user.id){
+                    this.$state.user = {
+                        id: user.id,
+                        username: user.username,
+                        blocked: user.blocked,
+                    }
                 }
 
                 /*                this.$state.csrfParam = response.data.csrfParam

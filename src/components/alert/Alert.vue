@@ -4,7 +4,7 @@
       <div v-if="showTitle" class="alert-heading h4">{{ title }}</div>
       <div :class="'alert-'+type">{{text}}</div>
     </div>
-    <div class="href"><IconXmark @click="emit('close')" color="#494F54" :height="15"/></div>
+    <div class="close"><IconXmark @click="emit('close')" color="#494F54" :height="15"/></div>
   </div>
 </template>
 
@@ -54,8 +54,30 @@ onMounted(() => setTimeout(() => emit('close'), closeTimeOut))
 .alert {
   display: flex;
   justify-content: space-between;
+  position: fixed;
+  top: 50px;
+  left: 0;
+  border: 1px solid;
+  margin: 10px;
+  border-radius: 4px;
+  padding: 10px;
+  color: #005e14;
+  background: #caebd1;
+  &.alert-error{
+    color: #940303;;
+    background: #ffdada
+  }
+  &.alert-warning{
+    color: #c76800;
+    background: #fff3e6;
+  }
   .alert-heading{
     margin-bottom: 10px;
+    font-weight: bold;
+  }
+  .close{
+    cursor: pointer;
+
   }
 }
 </style>

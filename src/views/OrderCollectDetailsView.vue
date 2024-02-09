@@ -5,7 +5,7 @@ import {computed, reactive, ref, watch} from "vue";
 
 import IconCheck from "../components/icons/IconCheck.vue";
 import {api} from "../helper.js";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import IconXmark from "../components/icons/IconXmark.vue";
 import XPanel from "../components/ui/XPanel.vue";
 import {useSystemStore} from "../stores/system.js";
@@ -16,8 +16,10 @@ import BarcodeScanner from "../components/util/BarcodeScanner.vue";
 import ProductImagesSlider from "../components/ProductImagesSlider.vue";
 import {dateRu} from "../helpers/datetime.js";
 
+
 const system = useSystemStore()
 const route = useRoute()
+const router = useRouter()
 system.title = `Сборка заказа: ${route.params.id}`
 
 const soundOK = new Audio(scan_ok);
@@ -41,9 +43,14 @@ const remainTotal = computed(() => {
 })
 
 
-const loadOrder = () => api().post(`/warehouse/order/item?expand=items.dimensions,items.images,marketplace`, {order_id_eas: route.params.id}).then(data => order.value = data)
+const loadOrder = () => api().post(
+    `/warehouse/order/item?expand=items.dimensions,items.images,marketplace`,
+    {order_id_eas: route.params.id}
+).then(data => order.value = data)
+watch(() => route.params.id, () => {
+  loadOrder()
+})
 watch(() => order.value, (value) => {
-  console.log('change')
   canEdit.value = system.user.username === order.value.wh_username
   finished.value = true
   for (let item of value.items) {
@@ -58,6 +65,7 @@ watch(() => order.value, (value) => {
     }
   }
 })
+
 
 
 const setAttribute = (attribute, value) => {
@@ -120,7 +128,7 @@ const reset = (product_id) => {
   }
 }
 
-const scanAll = (product_id) => {
+const scanAll = () => {
     for (let item of Object.entries(barcodes)) {
         barcodes[item[0]].scanned = barcodes[item[0]].quantity
     }
@@ -130,7 +138,11 @@ const scanAll = (product_id) => {
 
 loadOrder()
 
-
+const openNext = () => {
+  api().post(
+      `/warehouse/order/next`
+  ).then((order) => router.replace(`/order-collect/${order.order_id_eas}`))
+}
 
 </script>
 
@@ -140,13 +152,22 @@ loadOrder()
     <XPanel v-if="order" >
       <div class="collect-top">
         <div class="left">
-          <div class="item"><div class="title">№ заказа</div> {{order.order_id_eas}}</div>
-          <div class="item"><div class="title">№ док-та</div> {{Number(order.doc_number_eas)}}</div>
-          <div class="item"><div class="title">№ на МП:</div> {{order.order_number_mp}}</div>
-          <div class="item"><div class="title">МП:</div> {{order.marketplace.title.slice(0, 30)}}</div>
-          <div class="item"><div class="title">Создан:</div> {{order.created_at}}</div>
-          <div class="item"><div class="title">Собирает:</div> {{order.wh_username}}</div>
-          <div class="item" v-if="order.collected_at"><div class="title">Собран:</div> {{order.collected_at}}</div>
+          <div class="item"><div class="title">№ заказа</div>
+            <div class="value">{{ order.order_id_eas }}</div></div>
+          <div class="item"><div class="title">№ док-та</div>
+            <div class="value">{{ Number(order.doc_number_eas) }}</div></div>
+          <div class="item" v-if="order.order_number_mp"><div class="title">№ на МП:</div>
+            <div class="value">{{ order.order_number_mp }}</div></div>
+          <div class="item" v-if="order.barcode_mp"><div class="title">Штриход заказа для МП:</div>
+            <div class="value">{{ order.barcode_mp }}</div></div>
+          <div class="item" v-if="order.marketplace"><div class="title">МП:</div>
+            <div class="value">{{ order.marketplace.title.slice(0, 30) }}</div></div>
+          <div class="item flex"><div class="title">Создан:</div>
+            <div class="value">{{ order.created_at }}</div></div>
+          <div class="item flex"><div class="title">Собирает:</div>
+            <div class="value">{{ order.wh_username }}</div></div>
+          <div class="item flex" v-if="order.collected_at"><div class="title">Собран:</div>
+            <div class="value">{{ order.collected_at }}</div></div>
 
         </div>
         <div class="right">
@@ -181,7 +202,7 @@ loadOrder()
             </div>
           </div>
           <div class="image">
-            <ProductImagesSlider v-if="item.images" :images="item.images"/>
+            <ProductImagesSlider v-if="item.images" :images="item.images" :key="order.order_eas_id"/>
             <img v-else src="/noimage.gif" alt="">
 
           </div>
@@ -197,7 +218,10 @@ loadOrder()
       <BtnStd  class="warning" @click="unCollect" v-if="order.status_id === 1"><IconXmark color="#ffffff"/> Разобрать заказ</BtnStd>
       <BtnStd class="success" @click="pack" v-if="order.status_id === 1"><IconCheck color="#ffffff"/> Упаковать заказ</BtnStd>
       <BtnStd class="warning" @click="unPack" v-if="order.status_id === 2"><IconXmark color="#ffffff"/> Распаковать заказ</BtnStd>
+    </div>
 
+    <div class="next-order-panel" v-if="order && canEdit && order.status_id"  @click="openNext">
+      <IconCheck color="#ffffff"/> Открыть следующий
     </div>
 
   </div>
@@ -234,6 +258,18 @@ loadOrder()
         .title{
           color: lighten($color, 20%);
           font-size: 80%;
+        }
+        &:not(.flex) .value{
+            font-size: 120%;
+            font-weight: bold;
+        }
+        &.flex{
+          gap: 5px;
+          align-items: center;
+          .value{
+
+            font-size: 80%;
+          }
         }
       }
     }
@@ -349,48 +385,26 @@ loadOrder()
           width: 150px;
           padding: 5px;
         }
-/*        .image{
-
-          width: 160px;
-          height: 160px;
-          text-align: center;
-          overflow: hidden;
-          >img{
-            max-width: 100%;
-            max-height: 100%;
-          }
-          .image-slider{
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            .slide{
-              scroll-snap-align: start;
-              flex-shrink: 0;
-              width: 150px;
-              height: 160px;
-              margin-right: 50px;
-              transform-origin: center center;
-              transform: scale(1);
-              transition: transform 0.5s;
-              position: relative;
-
-              img{
-
-              }
-            }
-          }
-        }*/
       }
 
     }
   }
   .actions{
-    margin: 30px 0;
+    margin: 30px 0 80px 0;
     display: flex;
     justify-content: space-around;
+
+  }
+
+  .next-order-panel{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: $primary-color;
+    color: #ffffff;
+    padding: 10px 0;
+    text-align: center;
   }
 }
 </style>

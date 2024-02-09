@@ -17,28 +17,31 @@ defineProps({
   images: Array
 })
 
+let car = null
 
 
 onMounted(() => {
-  new Carousel(container.value, {Dots: false, Navigation: false })
+  car = new Carousel(container.value, {Dots: false, Navigation: false })
   Fancybox.bind(container.value, '[data-fancybox]', options)
 
 })
 onUpdated(() => {
   Fancybox.unbind(container.value);
   Fancybox.close();
+  car.reInit({Dots: false, Navigation: false })
+ // car = new Carousel(container.value, {Dots: false, Navigation: false })
   Fancybox.bind(container.value, '[data-fancybox]', options)
 })
 onUnmounted(() => {
   Fancybox.destroy();
-
+  car = null
 })
 
 </script>
 
 <template>
   <div ref="container">
-    <a data-fancybox="gallery" :href="image.full" v-for="image in images" class="f-carousel__slide">
+    <a data-fancybox="gallery" :href="image.full" v-for="image in images" :key="image.thumb" class="f-carousel__slide">
       <img :src="image.thumb" alt="" />
     </a>
   </div>

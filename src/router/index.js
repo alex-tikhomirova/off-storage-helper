@@ -26,11 +26,6 @@ const router = createRouter({
             },
           ]
         },
-/*        {
-          path: '/order-collect/details',
-          component: () => import('../views/OrderCollectDetailsView.vue'),
-          meta: {title: 'Сборка заказа'}
-        },*/
       ]
     },
     {
@@ -44,13 +39,26 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const system = useSystemStore()
   if (!system.user){
-    await system.loadUser()
+    try {
+      await system.loadUser()
+      if (!system.user){
+        throw new Error('Пользователь не найден')
+      }
+    }catch (e) {
+      if(to.name !== 'login'){
+        return { name: 'login' }
+      }
+     //
+    }
+    if (to.path === '/'){
+      return '/order-collect'
+    }
   }
-  if (!system.user && to.name !== 'login'){
-    return { name: 'login' }
-  }
+/*  if (!system.user && to.name !== 'login'){
+
+  }*/
   if (system.user && to.name === 'login'){
-    return ''
+    return '/order-collect'
   }
 
 

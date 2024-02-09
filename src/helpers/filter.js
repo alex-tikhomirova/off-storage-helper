@@ -1,7 +1,9 @@
 import {reactive, watch} from "vue";
+import {useRoute, useRouter} from "vue-router";
 
 export default (data, callback) => {
 
+    const router = useRouter()
     const parseUri = () => {
         const query = {
             filter: Object.assign({}, data),
@@ -43,27 +45,35 @@ export default (data, callback) => {
                 500)
         },
         init() {
-            watch(query.filter, (value) => this.filterChange(value))
-            watch(() => query.limit, (value) => this.setQueryParam('limit', value))
-            watch(() => query.order, (value) => this.setQueryParam('order', value))
-            watch(() => query.page, (value) => this.setQueryParam('page', value))
+            watch(query.filter, () => this.filterChange())
+            watch(() => query.limit, () => this.setQueryParam())
+            watch(() => query.order, () => this.setQueryParam())
+            watch(() => query.page, () => this.setQueryParam())
             callback.apply(null, [this.query])
         },
-        filterChange(value) {
-            const query =  Object.entries(value).filter(value => !!value[1].length).map((value) => {
-                return [value[0], value[1]].join(':')
-            }).join('||')
+        filterChange() {
             this.query.page = 1
-            this.setQueryParam('filter', query)
+            this.setQueryParam()
         },
-        setQueryParam(parameter, value){
-            const url =  new URL(location.href)
-            if (value){
-                url.searchParams.set(parameter, value)
-            }else{
-                url.searchParams.delete(parameter)
+        setQueryParam(){
+
+
+            const query = {filter: Object.entries(this.query.filter).filter(value => !!value[1].length).map((value) => {
+                    return [value[0], value[1]].join('::')
+                }).join('||')}
+
+
+            if (this.query.limit){
+                query.limit = this.query.limit
             }
-            history.pushState(null, null, url)
+            if (this.query.order){
+                query.order = this.query.order
+            }
+            if (this.query.page > 1){
+                query.page = this.query.page
+            }
+
+            router.push({query: query})
             this.debounce(callback)
         },
     }

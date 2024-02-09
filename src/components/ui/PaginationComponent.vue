@@ -51,8 +51,8 @@ const computedPages = computed(() => {
 })
 
 const visible = computed(() => {
-  const start = props.perpage - (props.modelValue * props.perpage)
-  const end = props.perpage * (props.modelValue)
+  const start =((props.modelValue - 1) * props.perpage) + 1
+  const end = Math.min(props.perpage * (props.modelValue), props.total)
   return [start,end].join(' - ')
 })
 

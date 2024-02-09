@@ -21,7 +21,7 @@ const login = () => api().post('/user/login', {username: username.value.wh_usern
 })
 
 const loadOptions = () => api().get('/user/list').then(data => options.value = data)
-
+console.log(system.user)
 </script>
 
 <template>

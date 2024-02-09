@@ -5,6 +5,7 @@ import {useRouter} from "vue-router";
 import IconBars from "../components/icons/IconBars.vue";
 import BtnStd from "../components/ui/BtnStd.vue";
 import {useSystemStore} from "../stores/system.js";
+import AlertBox from "../components/alert/AlertBox.vue";
 
 const router = useRouter()
 
@@ -20,6 +21,7 @@ const system = useSystemStore()
     </div>
     <BtnStd><IconBars :height="14"/></BtnStd>
   </div>
+  <AlertBox/>
   <div class="view-wrapper">
     <router-view/>
   </div>
