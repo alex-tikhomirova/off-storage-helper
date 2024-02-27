@@ -26,6 +26,24 @@ const router = createRouter({
             },
           ]
         },
+        {
+          path: '/product',
+          children: [
+            {
+              path: ':id',
+              component: () => import('../views/ProductDetailsView.vue'),
+            },
+          ]
+        },
+        {
+          path: '/conversation',
+          children: [
+            {
+              path: 'questions',
+              component: () => import('../views/MarketplaceQuestionsView.vue')
+            }
+          ]
+        }
       ]
     },
     {

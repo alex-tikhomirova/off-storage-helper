@@ -3,12 +3,12 @@
 </template>
 
 <script setup>
+import {computed} from "vue";
+
 const props = defineProps({
   height: {type: Number, default:12},
   color: {type: String, default:'#333333'},
   rotate: {type: Number, default: 0}
 })
-
-const style = 'transform: rotate('+props.rotate+'deg)'
-
+const style = computed(() => 'transform: rotate('+props.rotate+'deg)')
 </script>

@@ -10,11 +10,13 @@
 
 
 @import './../../scss/variables.scss';
-$color: #ffffff;
+
 $background: $primary-color;
 button{
+  $text-color: #ffffff;
   background:  $background;
-  color: $color;
+  color: $text-color;
+  cursor: pointer;
   border: none;
   box-shadow: 0 0 2px  #000000;
   padding: 8px 14px;
@@ -23,6 +25,10 @@ button{
   justify-content: center;
   border-radius: 4px;
   gap: 5px;
+  &.default{
+    background: $color-default;
+    color: $color;
+  }
   &.success{
     background: $color-success;
   }
@@ -32,22 +38,28 @@ button{
   &[disabled]{
     background:  lighten($background, 20%);
     box-shadow: none;
-    color: darken($color,10%);
+    color: darken($text-color,10%);
     svg{
-      fill: darken($color,10%);
+      fill: darken($text-color,10%);
     }
   }
   &.active,:active{
     background:  darken($background, 5%);
     box-shadow: inset 2px 2px 3px #000000;
-    color: darken($color,10%);
+    color: darken($text-color,10%);
     svg{
       fill: darken($background,20%);
       height: 14px;
     }
   }
+
   svg{
-    fill: $color;
+    fill: $text-color;
+  }
+  &.default{
+    svg{
+      fill: $color;
+    }
   }
 }
 </style>

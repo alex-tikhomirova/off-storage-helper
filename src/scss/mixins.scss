@@ -1,0 +1,16 @@
+@import './variables.scss';
+
+@mixin round-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-error;
+  color: #fff;
+  border: 2px solid darken($color-error, 10%);
+  border-radius: 100%;
+  margin: auto;
+  &.success{
+    background: $color-success;
+    border-color: darken($color-success, 10%);
+  }
+}

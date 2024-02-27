@@ -11,11 +11,15 @@ export default defineConfig({
     watch: {
       usePolling: true
     },
-    proxy: {
+    strictPort: true,
+    hmr: {
+      clientPort: 5120
+    }
+/*    proxy: {
       "/publicapi": {
         target: "http://offgroup.xyz",
         changeOrigin: true,
       },
-    },
+    },*/
   }
 })

@@ -13,8 +13,7 @@ import IconBarcode from "../components/icons/IconBarcode.vue";
 import scan_ok from './../assets/scan_ok.mp3'
 import scan_not_ok from './../assets/scan_not_ok.mp3'
 import BarcodeScanner from "../components/util/BarcodeScanner.vue";
-import ProductImagesSlider from "../components/ProductImagesSlider.vue";
-import {dateRu} from "../helpers/datetime.js";
+import ItemDetails from "./orderdetails/ItemDetails.vue";
 
 
 const system = useSystemStore()
@@ -67,7 +66,6 @@ watch(() => order.value, (value) => {
 })
 
 
-
 const setAttribute = (attribute, value) => {
   return api().post(`/warehouse/order/set-attribute`, {order_id_eas: order.value.order_id_eas, attribute: attribute, value: value}).then((data) => {
     Object.assign(order.value, data)
@@ -116,7 +114,6 @@ const scan = (barcode) => {
   }
 }
 
-
 const reset = (product_id) => {
   if (!order.value.status_id && canEdit && confirm('Уверены???')){
     for (let item of Object.entries(barcodes)) {
@@ -134,8 +131,6 @@ const scanAll = () => {
     }
     setScan()
 }
-
-
 loadOrder()
 
 const openNext = () => {
@@ -158,8 +153,11 @@ const openNext = () => {
             <div class="value">{{ Number(order.doc_number_eas) }}</div></div>
           <div class="item" v-if="order.order_number_mp"><div class="title">№ на МП:</div>
             <div class="value">{{ order.order_number_mp }}</div></div>
-          <div class="item" v-if="order.barcode_mp"><div class="title">Штриход заказа для МП:</div>
-            <div class="value">{{ order.barcode_mp }}</div></div>
+          <div class="item" v-if="order.barcode_mp && order.marketplace">
+            <div class="title">Штриход заказа для МП:</div>
+            <div class="value" v-if="order.marketplace.type === 'wb'">{{ order.barcode_mp.replace(/(.{4})$/, ' $1') }}</div>
+            <div class="value" v-else>{{ order.barcode_mp }}</div>
+          </div>
           <div class="item" v-if="order.marketplace"><div class="title">МП:</div>
             <div class="value">{{ order.marketplace.title.slice(0, 30) }}</div></div>
           <div class="item flex"><div class="title">Создан:</div>
@@ -180,38 +178,18 @@ const openNext = () => {
     </XPanel>
     <BarcodeScanner @decode="scan" v-if="scanMode"/>
     <div class="items">
-      <XPanel class="item" v-if="order" v-for="item in order.items" :title="item.product_name">
-        <div class="main">
-          <div class="info">
+      <ItemDetails
+          v-if="order" v-for="item in order.items"
+          :item="item"
+          :key="`${item.order_id_eas}-${item.product_id}`"
+          :full-images="order.items.length === 1"
+          :scanned="barcodes[item.barcode].scanned"
+          @scan="(code) => scan(code)"
+          @reset="(product_id) => reset(product_id)"
+          :status_id="order.status_id"
+      />
 
-
-            <div class="flex-tbl code">
-              <div class="vblock"><label>Код</label><div class="value">{{ item.product_id }}</div> </div>
-              <div class="vblock"><label>Код поставщика</label><div class="value">{{ item.vendor_code }}</div> </div>
-              <div class="vblock"><label>код МП</label><div class="value">{{ item.marketplace_sku }}</div> </div>
-            </div>
-            <div class="flex-tbl place">
-              <div class="vblock"><label>Место</label><div class="value">{{ item.store_place }}</div> </div>
-              <div class="vblock"><label>Остаток</label><div class="value">{{ item.current_stock }}</div> </div>
-              <div class="vblock" v-if="item.date_last_ship && item.date_last_ship !== '0000-00-00 00:00:00'"><label>Посл. пост</label><div class="value">{{ dateRu(item.date_last_ship) }}</div> </div>
-            </div>
-            <div class="flex-tbl counters" :class="{multi: item.quantity>1, success: barcodes[item.barcode].scanned === item.quantity}">
-              <div class="vblock barcode"><label>Штрихкод</label><div class="value" @click="() => scan(item.barcode)">{{ item.barcode }}</div> </div>
-              <div class="vblock qty"><label>Кол-во</label><div class="value">{{ item.quantity }}</div> </div>
-              <div class="vblock scan" @click="() => reset(item.product_id)"><label>Считано</label><div class="value" >{{ Number(item.scanned) }}</div> <div class="reset" v-if="!order.status_id"><IconXmark/></div></div>
-            </div>
-          </div>
-          <div class="image">
-            <ProductImagesSlider v-if="item.images" :images="item.images" :key="order.order_eas_id"/>
-            <img v-else src="/noimage.gif" alt="">
-
-          </div>
-
-        </div>
-
-      </XPanel>
     </div>
-
 
     <div class="actions" v-if="canEdit">
       <BtnStd @click="collect"  v-if="!order.status_id"><IconCheck color="#ffffff"/> Заказ собран</BtnStd>
@@ -229,22 +207,7 @@ const openNext = () => {
 
 <style  lang="scss">
 @import './../scss/variables.scss';
-
-
-@mixin round-counter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: $color-error;
-  color: #fff;
-  border: 2px solid darken($color-error, 10%);
-  border-radius: 100%;
-  margin: auto;
-  &.success{
-    background: $color-success;
-    border-color: darken($color-success, 10%);
-  }
-}
+@import './../scss/mixins.scss';
 
 .order-collect{
 
@@ -292,102 +255,7 @@ const openNext = () => {
   }
   .items{
     margin: 10px 0;
-    .item{
-      margin: 10px 0;
-      border: 1px solid $border-color;
-      .xpanel-title{
-        font-size: 90%;
-      }
-      &:not(:first-child){
 
-      }
-
-      .title{
-        border-bottom: 1px solid $border-color;
-        display: flex;
-        padding: 7px 5px 5px 5px;
-        font-size: 12px;
-      }
-      .main{
-        display: flex;
-        .info{
-          flex: 2;
-          display: flex;
-          flex-direction: column;
-
-        }
-        .flex-tbl{
-          display: flex;
-          justify-content: center;
-
-          &.counters{
-            &.multi .qty .value{
-              color: $primary-color;
-              font-size: 20px;
-              text-decoration: underline;
-            }
-            .scan {
-              position: relative;
-              .reset{
-                position: absolute;
-                top: 2px;
-                right: 2px;
-                z-index: 1;
-              }
-              .value{
-                @include round-counter;
-                width: 25px;
-                height: 25px;
-                color: #ffffff;
-              }
-            }
-            &.success {
-              .qty .value{
-                color: $color-success;
-              }
-              .scan .value{
-                background: $color-success;
-                border-color: darken($color-success, 10%);
-              }
-            }
-          }
-
-
-          &:not(:last-child) {
-            border-bottom: 1px solid $border-color;
-          }
-          .vblock{
-            text-align: center;
-
-            padding: 10px 5px;
-
-            &.barcode{
-              flex: 2;
-            }
-            &:not(:last-child){
-              border-right: 1px solid $border-color;
-            }
-            label{
-              color: lighten($color, 20%);
-              font-size: 80%;
-              display: block;
-              margin-bottom: 5px;
-            }
-            .value{
-              font-weight: bold;
-              .error{
-                color: $color-error;;
-              }
-            }
-          }
-        }
-        .image{
-          width: 150px;
-          padding: 5px;
-        }
-      }
-
-    }
   }
   .actions{
     margin: 30px 0 80px 0;

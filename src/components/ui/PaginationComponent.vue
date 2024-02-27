@@ -105,6 +105,7 @@ const prev = () => {
 
   > div {
     border: 1px solid #CCCCCC;
+    cursor: pointer;
 
     &:not(:last-child) {
       border-right-width: 0;

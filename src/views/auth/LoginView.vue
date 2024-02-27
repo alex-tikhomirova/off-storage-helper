@@ -17,7 +17,7 @@ const password = ref(null)
 
 const login = () => api().post('/user/login', {username: username.value.wh_username, password: password.value}).then(() => {
   system.user = {username: username.value.wh_username}
-  router.replace('/')
+  router.replace('/order-collect')
 })
 
 const loadOptions = () => api().get('/user/list').then(data => options.value = data)

@@ -14,7 +14,11 @@ const options = {
 }
 
 defineProps({
-  images: Array
+  images: Array,
+  thumbSize: {
+    type: String,
+    default: 'thumb'
+  }
 })
 
 let car = null
@@ -42,11 +46,16 @@ onUnmounted(() => {
 <template>
   <div ref="container">
     <a data-fancybox="gallery" :href="image.full" v-for="image in images" :key="image.thumb" class="f-carousel__slide">
-      <img :src="image.thumb" alt="" />
+      <img :src="image[thumbSize]" alt="" />
     </a>
   </div>
 </template>
 
-<style scoped lang="scss">
-
+<style lang="scss">
+.f-carousel__slide{
+  img{
+    max-width: 100%;
+    height: auto;
+  }
+}
 </style>

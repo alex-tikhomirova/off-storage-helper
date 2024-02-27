@@ -3,9 +3,7 @@
 </template>
 
 <script setup>
-
-
-const props = defineProps({
+defineProps({
   height: {type: Number, default:12},
   color: {type: String, default:'#333333'},
 })

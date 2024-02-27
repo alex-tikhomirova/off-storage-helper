@@ -54,9 +54,7 @@ onMounted(() => setTimeout(() => emit('close'), closeTimeOut))
 .alert {
   display: flex;
   justify-content: space-between;
-  position: fixed;
-  top: 50px;
-  left: 0;
+  max-width: 800px;
   border: 1px solid;
   margin: 10px;
   border-radius: 4px;
