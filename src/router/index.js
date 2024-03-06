@@ -64,19 +64,15 @@ router.beforeEach(async (to) => {
       }
     }catch (e) {
       if(to.name !== 'login'){
-        return { name: 'login' }
+        return { name: 'login', query: {return: to.path} }
       }
      //
     }
-    if (to.path === '/'){
-      return '/order-collect'
-    }
   }
-/*  if (!system.user && to.name !== 'login'){
 
-  }*/
+
   if (system.user && to.name === 'login'){
-    return '/order-collect'
+    return '/'
   }
 
 

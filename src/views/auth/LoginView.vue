@@ -3,25 +3,28 @@ import {api} from "../../helper.js";
 import InputSelectable from "../../components/ui/InputSelectable.vue";
 import {ref} from "vue";
 import BtnStd from "../../components/ui/BtnStd.vue";
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useSystemStore} from "../../stores/system.js";
 import XPanel from "../../components/ui/XPanel.vue";
 
 
 const router = useRouter()
+const route = useRoute()
 const system = useSystemStore()
 
 const options = ref([])
 const username = ref(null)
 const password = ref(null)
 
-const login = () => api().post('/user/login', {username: username.value.wh_username, password: password.value}).then(() => {
-  system.user = {username: username.value.wh_username}
-  router.replace('/order-collect')
+const login = () => api().post('/user/login', {username: username.value.username, password: password.value}).then(() => {
+  system.loadUser().then(() => {
+    router.replace(route.query.return || '/')
+  })
+
 })
 
 const loadOptions = () => api().get('/user/list').then(data => options.value = data)
-console.log(system.user)
+
 </script>
 
 <template>
@@ -34,7 +37,7 @@ console.log(system.user)
           <div class="form">
             <div class="form-group">
               <label>Имя пользователя</label>
-              <InputSelectable :options="options" @focus="() => loadOptions()"  option-text="wh_username" v-model="username" :visible-options="999"  />
+              <InputSelectable :options="options" @focus="() => loadOptions()"  option-text="username" v-model="username" :visible-options="999"  />
             </div>
             <div class="form-group">
               <label>Пароль</label>

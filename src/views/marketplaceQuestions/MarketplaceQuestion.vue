@@ -24,7 +24,8 @@ const answerSent = () => {
       <div class="left">
         <div class="title">{{ question.product_name }}</div>
         <div class="info">
-          <div>Код товара: <strong>{{ question.product_id }}</strong></div>
+          <div>Код товара: <router-link :to="`/product/${question.product_id}`" class="value"><strong>{{ question.product_id }}</strong></router-link></div>
+          <div v-if="question.product">Код на МП: <a :href="question.product.link" target="_blank"><strong>{{ question.product.shopSku }}</strong></a></div>
           <div>Маркетплейс: <strong>{{ question.marketplace.title }}</strong></div>
         </div>
       </div>

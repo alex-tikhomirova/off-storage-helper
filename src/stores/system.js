@@ -52,19 +52,14 @@ export const useSystemStore = defineStore('system', {
             }
         },
         loadUser(){
-            return api().get('/user/current').then((user) => {
-                if (typeof user === "object" && user.id){
-                    this.$state.user = {
-                        id: user.id,
-                        username: user.username,
-                        blocked: user.blocked,
-                    }
-                }
-
-                /*                this.$state.csrfParam = response.data.csrfParam
-                                this.$state.csrfToken = response.data.csrfToken*/
+            return api().get('/user/current?expand=authItems').then((user) => {
+                this.$state.user = user
             })
         },
     },
-    getters: {    }
+    getters: {
+        can: (state) => {
+            return (rule) => state.user && state.user.authItems.filter((item) => item.name === rule).length
+        }
+    }
 })

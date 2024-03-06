@@ -8,6 +8,11 @@ import XPanel from "../components/ui/XPanel.vue";
 import PaginationComponent from "../components/ui/PaginationComponent.vue";
 import FilterMarketplace from "../components/ui/FilterMarketplace.vue";
 import RadioButtons from "../components/ui/RadioButtons.vue";
+import {useSystemStore} from "../stores/system.js";
+
+
+const system = useSystemStore()
+system.title = `Вопросы и ответы`
 
 const list = ref([])
 const pages = ref({
