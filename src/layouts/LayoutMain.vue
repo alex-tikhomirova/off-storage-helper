@@ -37,6 +37,7 @@ const logout = (e) => {
     <div class="menu-header" v-if="menuOpened">
       <router-link class="item" to="/order-collect" v-if="system.can('order-collect')">Сборка заказов</router-link>
       <router-link class="item" to="/conversation/questions" v-if="system.can('conversation')">Вопросы и ответы</router-link>
+      <router-link class="item" to="/conversation/reviews" v-if="system.can('conversation')">Отзывы о товарах</router-link>
       <a class="item" href="#" @click="logout">Выход</a>
     </div>
   </div>

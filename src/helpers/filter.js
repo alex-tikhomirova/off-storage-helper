@@ -1,5 +1,5 @@
 import {reactive, watch} from "vue";
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 
 export default (data, callback) => {
 
@@ -47,15 +47,15 @@ export default (data, callback) => {
         init() {
             watch(query.filter, () => this.filterChange())
             watch(() => query.limit, () => this.setQueryParam())
-            watch(() => query.order, () => this.setQueryParam())
-            watch(() => query.page, () => this.setQueryParam())
+            watch(() => query.order, () => this.setQueryParam(true))
+            watch(() => query.page, () => this.setQueryParam(true))
             callback.apply(null, [this.query])
         },
         filterChange() {
             this.query.page = 1
             this.setQueryParam()
         },
-        setQueryParam(){
+        setQueryParam(scrollTop = false){
 
 
             const query = {filter: Object.entries(this.query.filter).filter(value => !!value[1].length).map((value) => {
@@ -73,7 +73,7 @@ export default (data, callback) => {
                 query.page = this.query.page
             }
 
-            router.push({query: query})
+            router.push({query: query,  params: {scrollBehavior: scrollTop}})
             this.debounce(callback)
         },
     }

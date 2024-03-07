@@ -1,21 +1,17 @@
 <script setup>
-
-
 import {useSystemStore} from "../stores/system.js";
 
 const system = useSystemStore()
-system.title = `Главная`
-
-
+system.title = `Обратная связь`
 </script>
 
 <template>
-<div class="home-view">
-  <div class="section-links">
-    <router-link to="order-collect" v-if="system.can('order-collect')">Сборка заказов</router-link>
-    <router-link to="/conversation" v-if="system.can('conversation')">Общение с покупателями</router-link>
+  <div class="conversation-view">
+    <div class="section-links">
+      <router-link to="/conversation/questions" v-if="system.can('conversation')">Вопросы покупателей</router-link>
+      <router-link to="/conversation/reviews" v-if="system.can('conversation')">Отзывы о товарах</router-link>
+    </div>
   </div>
-</div>
 </template>
 
 <style lang="scss">

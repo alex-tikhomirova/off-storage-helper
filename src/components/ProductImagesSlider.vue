@@ -18,7 +18,12 @@ defineProps({
   thumbSize: {
     type: String,
     default: 'thumb'
+  },
+  slides: {
+    type: Number,
+    default: 1
   }
+
 })
 
 let car = null
@@ -45,7 +50,7 @@ onUnmounted(() => {
 
 <template>
   <div ref="container">
-    <a data-fancybox="gallery" :href="image.full" v-for="image in images" :key="image.thumb" class="f-carousel__slide">
+    <a data-fancybox="gallery" :href="image.full" v-for="image in images" :key="image.thumb" class="f-carousel__slide" :style="`width: calc(100% / ${slides})`">
       <img :src="image[thumbSize]" alt="" />
     </a>
   </div>
@@ -53,6 +58,7 @@ onUnmounted(() => {
 
 <style lang="scss">
 .f-carousel__slide{
+
   img{
     max-width: 100%;
     height: auto;

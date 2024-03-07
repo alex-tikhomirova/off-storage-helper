@@ -5,20 +5,32 @@ import IconCircleArrow from "../../components/icons/IconCircleArrow.vue";
 import MarketplaceQuestionAnwer from "./MarketplaceQuestionAnwer.vue";
 import MarketplaceAnswerForm from "./MarketplaceAnswerForm.vue";
 import BtnStd from "../../components/ui/BtnStd.vue";
+import XPanel from "../../components/ui/XPanel.vue";
+import IconXmark from "../../components/icons/IconXmark.vue";
+import {api} from "../../helper.js";
 
-defineProps({
+const props = defineProps({
   question: Object,
 })
 
 const emit = defineEmits(['updated'])
 const formVisible = ref(false)
+const rejecting = ref(false)
 const answerSent = () => {
   formVisible.value = false
   emit('updated')
 }
+const reject = () => {
+  rejecting.value = true
+  api().post('/conversation/question/reject-question', { uuid: props.question.uuid}).then(() => {
+    rejecting.value = false
+    emit('updated')
+  }).catch(() => rejecting.value = false)
+}
 </script>
 
 <template>
+  <XPanel>
   <div class="question" >
     <div class="header">
       <div class="left">
@@ -36,6 +48,7 @@ const answerSent = () => {
     </div>
     <div class="footer">
       <span class="text-muted">{{ question.author }}</span>
+      <BtnStd v-if="question.status_id === 0" @click="reject" class="warning" :disabled="rejecting"><IconXmark /> Отклонить</BtnStd>
       <BtnStd v-if="question.is_answerable && !question.answers.length" @click="formVisible = !formVisible"><IconCircleArrow :rotate="formVisible?180:0"/> Ответить</BtnStd>
     </div>
     <MarketplaceAnswerForm v-if="formVisible" :question_uuid="question.uuid" @sent="answerSent" @cancel="formVisible = false"/>
@@ -44,13 +57,14 @@ const answerSent = () => {
     </div>
 
   </div>
+  </XPanel>
 </template>
 
 <style scoped lang="scss">
 @import './../../scss/main.scss';
 
 .question {
-  margin-bottom: 50px;
+
   .header{
     display: flex;
     justify-content: space-between;

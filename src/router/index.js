@@ -3,6 +3,12 @@ import {useSystemStore} from "../stores/system.js";
 
 
 const router = createRouter({
+  scrollBehavior: (to) => {
+
+    if (to.params.scrollBehavior === 'true') {
+      return {left: 0, top: 0, behavior: 'smooth',}
+    }
+  },
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
@@ -37,11 +43,20 @@ const router = createRouter({
         },
         {
           path: '/conversation',
+
           children: [
+            {
+              path: '',
+              component: () => import('../views/ConversationView.vue'),
+            },
             {
               path: 'questions',
               component: () => import('../views/MarketplaceQuestionsView.vue')
-            }
+            },
+            {
+              path: 'reviews',
+              component: () => import('../views/MarketplaceReviewsView.vue')
+            },
           ]
         }
       ]

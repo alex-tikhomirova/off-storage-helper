@@ -21,7 +21,8 @@ const pages = ref({
 
 const filterData = {
   marketplace_id: [],
-  not_answered: ''
+  not_answered: '1',
+  status_id: '',
 }
 const loadOrders = (data) => {
   api().post('/conversation/question/list?expand=answers,marketplace,product', data).then(response => {
@@ -39,14 +40,12 @@ const worker = createFilter(filterData, loadOrders)
     <XPanel>
       <div class="filter">
         <FilterMarketplace v-model="worker.query.filter.marketplace_id"/>
-        <RadioButtons :options="[{id: '1', value: 'Без ответов'}, {id: '', value: 'Все'}]" option-label="value" v-model="worker.query.filter.not_answered"/>
-        <div></div>
+        <RadioButtons :options="[{id: '1', value: 'Без ответов'}, {id: '', value: 'Все'}, {id: '', value: 'Все'}]" option-label="value" v-model="worker.query.filter.not_answered"/>
+        <RadioButtons :options="[{id: '-1', value: 'Отклоненные'}, {id: '0', value: 'Новые'}, {id: '', value: 'Все'}, {id: '1', value: 'Опубликованные'}]" option-label="value" v-model="worker.query.filter.status_id"/>
       </div>
 
     </XPanel>
-    <XPanel>
-      <MarketplaceQuestion v-for="question in list" :key="question.uuid" :question="question" @updated="loadOrders" class="marketplace-questions"/>
-    </XPanel>
+    <MarketplaceQuestion v-for="question in list" :key="question.uuid" :question="question" @updated="loadOrders" class="marketplace-questions"/>
     <XPanel>
       <PaginationComponent v-model="worker.query.page" :pages="pages.page" :visible-links="5" :total="pages.total" :perpage="pages.perpage"/>
     </XPanel>
@@ -59,7 +58,7 @@ const worker = createFilter(filterData, loadOrders)
     margin: auto;
 
     .xpanel{
-      padding: 30px;
+      padding: 15px;
     }
     .filter{
       display: flex;
