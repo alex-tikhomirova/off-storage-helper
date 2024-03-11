@@ -12,6 +12,7 @@ body{
 }
 a,a:visited,.link{
   color: $primary-color;
+  cursor: pointer;
 }
 
 .text-muted{

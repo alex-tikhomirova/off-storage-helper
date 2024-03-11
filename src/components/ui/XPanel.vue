@@ -24,7 +24,7 @@
       font-size: 16px;
       border-bottom: 1px solid #ccc;
       padding: 10px;
-      background: #237a9712;
+      background: rgba(35, 122, 151, 0.07);
     }
     .xpanel-body{
       padding: 10px;

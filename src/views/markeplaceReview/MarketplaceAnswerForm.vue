@@ -4,15 +4,18 @@ import {ref} from "vue";
 import {api} from "../../helper.js";
 import IconXmark from "../../components/icons/IconXmark.vue";
 import BtnStd from "../../components/ui/BtnStd.vue";
+import AnwerTemplate from "../../components/util/AnwerTemplate.vue";
 
 const props = defineProps({
   review_uuid: String,
   answer: Object,
 })
-const greetings = ['Добрый день!', 'Здравствуйте!']
-const greetingkey = Math.floor(Math.random() * greetings.length)
 const emit = defineEmits(['sent', 'cancel']);
-const answerText = ref(props.answer?props.answer.text:greetings[greetingkey])
+
+/*const greetings = ['Добрый день!', 'Здравствуйте!']
+const greetingkey = Math.floor(Math.random() * greetings.length)
+const answerText = ref(props.answer?props.answer.text:greetings[greetingkey])*/
+const answerText = ref(props.answer?props.answer.text:'')
 const sending = ref(false)
 const submitAnswer = () => {
   if (answerText.value){
@@ -33,6 +36,7 @@ const submitAnswer = () => {
 
 <template>
   <div class="marketplace-answer-form">
+    <AnwerTemplate type="review" @select="(value) => answerText = value"/>
     <div class="form">
       <div class="form-group">
         <textarea class="input" v-model="answerText" placeholder="Введите ваш ответ" ></textarea>
