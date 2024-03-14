@@ -36,11 +36,10 @@ const openComplainModal = () => {
 const sendWbValuate = () => {
   const data = Object.assign({uuid: props.review.uuid}, wbValuateValue.value)
   wbValuate.value = false
-  alert('Метод пока отключен, так как не тестировался! Дайте знать, когда появится необходимость!')
-/*  api().post('/conversation/review/send-wb-valuate', data).then(() => {
+  api().post('/conversation/review/send-wb-valuate', data).then(() => {
     emit('updated')
     formVisible.value = false
-  })*/
+  })
 }
 </script>
 
@@ -51,12 +50,10 @@ const sendWbValuate = () => {
       <div v-if="valuationList" class="wb-valuation-list">
         <div v-if="valuationList.feedbackValuations" >
           <div class="title">Что-то не так с отзывом?</div>
-          <label><input type="radio" name="feedbackValuations" :value="null" v-model="wbValuateValue.supplierFeedbackValuation"/> Нет</label>
           <label v-if="valuationList.feedbackValuations" v-for="(problem, key) in valuationList.feedbackValuations"><input type="radio" name="feedbackValuations" :value="key" v-model="wbValuateValue.supplierFeedbackValuation"/> {{ problem }}</label>
         </div>
         <div v-if="valuationList.productValuations" >
           <div class="title">Есть проблема с товаром?</div>
-          <label><input type="radio" name="productValuations" :value="null" v-model="wbValuateValue.supplierProductValuation"/> Нет</label>
           <label v-for="(problem, key) in valuationList.productValuations"><input type="radio" name="productValuations" :value="key" v-model="wbValuateValue.supplierProductValuation"/> {{ problem }}</label>
         </div>
       </div>

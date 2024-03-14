@@ -21,11 +21,13 @@ const answerSent = () => {
   emit('updated')
 }
 const reject = () => {
-  rejecting.value = true
-  api().post('/conversation/question/reject-question', { uuid: props.question.uuid}).then(() => {
-    rejecting.value = false
-    emit('updated')
-  }).catch(() => rejecting.value = false)
+  if (confirm('Уверены, что хотите отклонить вопрос??')) {
+    rejecting.value = true
+    api().post('/conversation/question/reject-question', {uuid: props.question.uuid}).then(() => {
+      rejecting.value = false
+      emit('updated')
+    }).catch(() => rejecting.value = false)
+  }
 }
 </script>
 

@@ -37,6 +37,7 @@ button{
   }
   &[disabled]{
     background:  lighten($background, 20%);
+    cursor: not-allowed;
     box-shadow: none;
     color: darken($text-color,10%);
     svg{
