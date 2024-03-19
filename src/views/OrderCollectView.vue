@@ -27,7 +27,7 @@ const filterData = {
   status_id: '0',
   my_own: '1'
 }
-const loadOrders = (data) => {
+const load = (data) => {
   api().post('/warehouse/order/list?expand=marketplace', data).then(response => {
     list.value = response.items
     pages.value.page = response._meta.pageCount
@@ -35,7 +35,7 @@ const loadOrders = (data) => {
     pages.value.perpage = response._meta.perPage
   })
 }
-const worker = createFilter(filterData, loadOrders)
+const worker = createFilter(filterData, load)
 
 
 const options = {

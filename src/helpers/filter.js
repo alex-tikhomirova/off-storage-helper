@@ -76,6 +76,9 @@ export default (data, callback) => {
             router.push({query: query,  params: {scrollBehavior: scrollTop}})
             this.debounce(callback)
         },
+        reload(){
+            callback.apply(null, [this.query])
+        }
     }
 
     worker.init()

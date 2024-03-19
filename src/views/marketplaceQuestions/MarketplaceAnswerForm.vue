@@ -4,6 +4,7 @@ import {ref} from "vue";
 import {api} from "../../helper.js";
 import IconXmark from "../../components/icons/IconXmark.vue";
 import BtnStd from "../../components/ui/BtnStd.vue";
+import AnwerTemplate from "../../components/util/AnwerTemplate.vue";
 
 const props = defineProps({
   question_uuid: String,
@@ -33,6 +34,7 @@ const submitAnswer = () => {
 
 <template>
   <div class="marketplace-answer-form">
+    <AnwerTemplate type="review" @select="(value) => answerText = value"/>
     <div class="form">
       <div class="form-group">
         <textarea class="input" v-model="answerText" placeholder="Введите ваш ответ" ></textarea>

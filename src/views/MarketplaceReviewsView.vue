@@ -9,6 +9,8 @@ import {useSystemStore} from "../stores/system.js";
 import {ref} from "vue";
 import {api} from "../helper.js";
 import createFilter from "../helpers/filter.js";
+import SectionLinks from "../components/SectionLinks.vue";
+import router from "../router/index.js";
 
 
 const system = useSystemStore()
@@ -24,7 +26,7 @@ const filterData = {
   not_answered: '1',
   not_empty: '1'
 }
-const loadOrders = (data) => {
+const load = (data) => {
   api().post('/conversation/review/list?expand=answers,marketplace,product', data).then(response => {
     list.value = response.items
     pages.value.page = response._meta.pageCount
@@ -32,11 +34,15 @@ const loadOrders = (data) => {
     pages.value.perpage = response._meta.perPage
   })
 }
-const worker = createFilter(filterData, loadOrders)
+const worker = createFilter(filterData, load)
 </script>
 
 <template>
   <div class="marketplace-reviews-view">
+    <SectionLinks>
+      <span @click="router.push('/conversation/questions')"  v-if="system.can('conversation')" class="item ">Вопросы покупателей</span>
+      <span @click="router.push('/conversation/reviews')"  v-if="system.can('conversation')" class="item active">Отзывы о товарах</span>
+    </SectionLinks>
     <XPanel>
       <div class="filter">
         <FilterMarketplace v-model="worker.query.filter.marketplace_id"/>
@@ -46,7 +52,7 @@ const worker = createFilter(filterData, loadOrders)
 
     </XPanel>
 
-      <MarketplaceReview v-for="review in list" :key="review.uuid" :review="review" @updated="loadOrders" class="marketplace-review"/>
+      <MarketplaceReview v-for="review in list" :key="review.uuid" :review="review" @updated="() => worker.reload()" class="marketplace-review"/>
     <XPanel>
       <PaginationComponent v-model="worker.query.page" :pages="pages.page" :visible-links="5" :total="pages.total" :perpage="pages.perpage"/>
     </XPanel>
@@ -55,6 +61,7 @@ const worker = createFilter(filterData, loadOrders)
 
 <style lang="scss">
 .marketplace-reviews-view{
+  position: relative;
   max-width: 900px;
   margin: auto;
 
