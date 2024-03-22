@@ -72,6 +72,10 @@ const sendWbValuate = () => {
             <div v-if="review.marketplace">Маркетплейс: <strong>{{ review.marketplace.title }}</strong></div>
           </div>
         </div>
+        <div>
+          <BtnStd class="default" v-if="review.marketplace && review.marketplace.type === 'wb'" @click="openComplainModal"><IconCircleInfo /></BtnStd>
+
+        </div>
       </div>
       <div class="author">
         <div class="data">
@@ -93,7 +97,6 @@ const sendWbValuate = () => {
       </div>
       <ProductImagesSlider v-if="review.photos" :images="review.photos" :key="review.uuid" :slides="6"/>
       <div class="footer" >
-        <BtnStd class="warning" v-if="review.marketplace && review.marketplace.type === 'wb'" @click="openComplainModal"><IconCircleInfo /> Пожаловаться</BtnStd>
         <BtnStd v-if="!review.answers.length"  @click="formVisible = !formVisible"><IconCircleArrow :rotate="formVisible?180:0"/> Ответить</BtnStd>
       </div>
       <MarketplaceAnswerForm v-if="formVisible" :review_uuid="review.uuid" @sent="answerSent" @cancel="formVisible = false"/>

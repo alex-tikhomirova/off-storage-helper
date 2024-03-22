@@ -41,16 +41,19 @@ const reject = () => {
           <div>Код товара: <router-link :to="`/product/${question.product_id}`" class="value"><strong>{{ question.product_id }}</strong></router-link></div>
           <div v-if="question.product">Код на МП: <a :href="question.product.link" target="_blank"><strong>{{ question.product.shopSku }}</strong></a></div>
           <div>Маркетплейс: <strong>{{ question.marketplace.title }}</strong></div>
+          <div class="date">{{ question.created_at }}</div>
         </div>
       </div>
-      <div class="date">{{ question.created_at }}</div>
+      <div>
+        <BtnStd v-if="question.status_id === 0" @click="reject" class="default" :disabled="rejecting"><IconXmark /></BtnStd>
+
+      </div>
     </div>
     <div class="text">
       {{ question.text }}
     </div>
     <div class="footer">
       <span class="text-muted">{{ question.author }}</span>
-      <BtnStd v-if="question.status_id === 0" @click="reject" class="warning" :disabled="rejecting"><IconXmark /> Отклонить</BtnStd>
       <BtnStd v-if="question.is_answerable && !question.answers.length" @click="formVisible = !formVisible"><IconCircleArrow :rotate="formVisible?180:0"/> Ответить</BtnStd>
     </div>
     <MarketplaceAnswerForm v-if="formVisible" :question_uuid="question.uuid" @sent="answerSent" @cancel="formVisible = false"/>
@@ -92,7 +95,7 @@ const reject = () => {
   .footer{
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .answers {

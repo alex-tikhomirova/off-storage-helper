@@ -42,9 +42,10 @@ const submitAnswer = () => {
         <textarea class="input" v-model="answerText" placeholder="Введите ваш ответ" ></textarea>
       </div>
       <div class="form-footer">
-        <BtnStd class="default" @click="$emit('cancel')" :disabled="sending"><IconXmark/> Отмена</BtnStd>
         <BtnStd type="button" @click="submitAnswer" :disabled="sending"><IconTelegram/>
           {{ sending?'Отправка...':'Отправить' }}</BtnStd>
+        <BtnStd class="default" @click="$emit('cancel')" :disabled="sending"><IconXmark/> Отмена</BtnStd>
+
       </div>
     </div>
   </div>
